@@ -1,12 +1,26 @@
-const mysql = require('mysql2');
+const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
-const pool = mysql.createPool({
-    host: process.env.MYSQL_HOST,
-    port: process.env.MYSQL_PORT,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE
-});
+const sequelize = new Sequelize(
+    process.env.MYSQL_DATABASE || 'apex_studies_sql',
+    process.env.MYSQL_USER || 'root',
+    process.env.PASSWORD || 'apexpassword123',
+    {
+        host: process.env.MYSQL_HOST || '127.0.0.1',
+        port: process.env.MYSQL_PORT || 3330,
+        dialect: 'mysql',
+        logging: false,
+        pool: {
+            max: 5,
+            min: 0,
+            acquire: 30000,
+            idle: 10000
+        },
+        define: {
+            underscored: true,
+        },
+    }
 
-module.exports = pool.promise();
+);
+
+module.exports = sequelize;

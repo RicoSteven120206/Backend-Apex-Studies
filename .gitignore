@@ -1,0 +1,5 @@
+.gitignores
+.env
+package.json
+package-lock.json
+dockerfile
