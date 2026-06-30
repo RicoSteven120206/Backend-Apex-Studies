@@ -1,21 +1,3 @@
-// "use strict";
-// const router = require("express").Router();
-// const ctrl = require("../controllers/contentController");
-// const { verifyToken, adminOnly } = require("../middlewares/authMiddleware");
-
-// // Publik (read)
-// router.get("/", ctrl.list);
-// router.get("/quiz", ctrl.listQuiz);
-// router.get("/:id", ctrl.detail);
-
-// // Admin (write) + training ML
-// router.post("/", verifyToken, adminOnly, ctrl.create);
-// router.put("/:id", verifyToken, adminOnly, ctrl.update);
-// router.delete("/:id", verifyToken, adminOnly, ctrl.remove);
-// router.post("/system/retrain", verifyToken, adminOnly, ctrl.retrainModel);
-
-// module.exports = router;
-
 "use strict";
 const router = require("express").Router();
 const ctrl   = require("../controllers/contentController");

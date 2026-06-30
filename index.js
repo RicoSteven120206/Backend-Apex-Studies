@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 
 const sequelize = require('./config/mysql');
 const connectMongo = require('./config/mongo');
@@ -22,7 +24,22 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+["public/uploads/contents", "public/uploads/thumbnails"].forEach((dir) => {
+  fs.mkdirSync(path.join(process.cwd(), dir), { recursive: true });
+});
+
+app.use(express.static(path.join(process.cwd(), "public")));
+
 app.use('/api', require('./routes'));
+
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: `Route ${req.method} ${req.path} tidak ditemukan` });
+});
+
+app.use((err, req, res, next) => {
+  console.error("[UNHANDLED ERROR]", err.message);
+  res.status(500).json({ success: false, message: "Internal server error" });
+});
 
 const startServer = async () => {
     try {

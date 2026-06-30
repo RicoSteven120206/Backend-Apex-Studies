@@ -6,7 +6,7 @@ const {
   uploadThumbnail,
   handleUploadError,
 } = require("../middlewares/upload");
-const { verifyToken, adminOnly } = require("../middlewares/authMiddleware");
+const { verifyToken, adminOnly } = require("../middlewares//authMiddleware");
 
 const adminGuard = [verifyToken, adminOnly];
 
@@ -15,9 +15,7 @@ router.post(
   ...adminGuard,
   (req, res, next) => {
     uploadContent(req, res, (err) => {
-      if (err) {
-        return handleUploadError(err, req, res, next);
-      }
+      if (err) return handleUploadError(err, req, res, next);
       next();
     });
   },
@@ -29,17 +27,14 @@ router.post(
   ...adminGuard,
   (req, res, next) => {
     uploadThumbnail(req, res, (err) => {
-      if (err) {
-        return handleUploadError(err, req, res, next);
-      }
+      if (err) return handleUploadError(err, req, res, next);
       next();
     });
   },
   ctrl.uploadThumbnail
 );
 
-router.delete("/content/:filename", ...adminGuard, ctrl.deleteContent);
-
+router.delete("/content/:filename",   ...adminGuard, ctrl.deleteContent);
 router.delete("/thumbnail/:filename", ...adminGuard, ctrl.deleteThumbnail);
 
 module.exports = router;

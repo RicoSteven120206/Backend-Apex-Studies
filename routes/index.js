@@ -10,6 +10,6 @@ router.use("/contents", require("./contentRoutes"));
 router.use("/subjects", require("./subjectRoutes"));
 router.use("/analytics", require("./analyticsRoutes"));
 router.use("/learning-paths", require("./learningPathRoutes"));
-router.use("/uploads", require("./uploadRoutes"));
+router.use("/upload", require("./uploadRoutes"));
 
 module.exports = router;

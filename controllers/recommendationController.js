@@ -36,6 +36,14 @@ async function getFavoriteSubject(userId) {
   }
 }
 
+async function getTopSubject(userId) {
+  try {
+    const pref = await AnalyticsSubjectPref.findOne({ user_id: userId }).lean();
+    if (!pref?.subjects?.length) return null;
+    return pref.subjects.sort((a, b) => b.score - a.score)[0]?.subject_name || null;
+  } catch { return null; }
+}
+
 function handleMlError(res, err) {
   console.error("[ML ERROR]:", err.message);
   
@@ -210,6 +218,56 @@ const recommendationController = {
     } catch (err) {
       return handleMlError(res, err);
     }
+  },
+
+  async hybrid(req, res) {
+    try {
+      if (!req.user) return res.status(401).json({ success: false, message: "Login diperlukan" });
+      const userId       = Number(req.user.id);
+      const favoriteSubj = await getTopSubject(userId);
+
+      const mlResult = await mlService.hybrid({
+        user_id:                userId,
+        education_level:        req.user.education_level,
+        grade:                  req.user.grade,
+        preferred_content_type: null,
+        favorite_subject:       favoriteSubj,
+        difficulty:             null,
+        limit:                  Number(req.query.limit || 12),
+      });
+
+      const data = await hydrateContents(mlResult.recommendations);
+      if (data.length) await cacheResult(userId, data, "hybrid");
+
+      return res.json({
+        success:  true,
+        strategy: "hybrid",
+        meta:     mlResult.meta || {},
+        total:    data.length,
+        data,
+      });
+    } catch (err) { return handleMlError(res, err); }
+  },
+
+  async quizProgress(req, res) {
+    try {
+      if (!req.user) return res.status(401).json({ success: false, message: "Login diperlukan" });
+
+      const mlResult = await mlService.quizProgress({
+        user_id: Number(req.user.id),
+        limit:   Number(req.query.limit || 10),
+      });
+
+      const data = await hydrateContents(mlResult.recommendations);
+
+      return res.json({
+        success:  true,
+        strategy: "quiz-progress",
+        meta:     mlResult.meta || {},
+        total:    data.length,
+        data,
+      });
+    } catch (err) { return handleMlError(res, err); }
   },
 
   async myRecommendations(req, res) {
